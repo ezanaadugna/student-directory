@@ -1,5 +1,3 @@
-# first, we print the list of students
-
 def input_students
     puts  "Please enter the names of the students"
     puts "To finish, just hit return twice"
@@ -10,11 +8,11 @@ def input_students
 #while the name is not empty, repeat this code
     while !name.empty? do    
         students << {name: name, cohort: :november}
+        puts "Now we have #{students.count} students"
         name = gets.chomp
     end
     return students
 end
-
 
 def print_header
     puts "The students of Villains Academy"
