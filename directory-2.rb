@@ -17,19 +17,31 @@ end
 
 def process(selection)
     case selection
-        when "1"
-            input_students
-        when "2"
-            show_students
-        when "3"
-            save_students
-        when "4"
-            load_students
-        when "9"
-            exit
-        else
+    when "1"
+        input_students
+        puts "Students added successfully."
+    when "2"
+        show_students
+    when "3"
+        save_students
+        puts "Student list saved successfully to students.csv.gitignore."
+    when "4"
+        load_students
+        puts "Student list loaded successfully from students.csv.gitignore."
+    when "9"
+        exit
+    else
         puts "I don't know what you mean, try again"
     end
+  end
+
+def add_student(name, cohort)
+    @students << {name: name, cohort: cohort.to_sym}
+end
+
+def get_name
+    puts "Name: "
+    STDIN.gets.chomp
 end
 
 def input_students
@@ -38,10 +50,11 @@ def input_students
 
     name = STDIN.gets.chomp
 #while the name is not empty, repeat this code
-    while !name.empty? do    
-        @students << {name: name, cohort: :november}
+    loop do
+        name = get.name
+        break if name.empty?  
+        add_student(name, :november)
         puts "Now we have #{@students.count} students"
-        name = gets.chomp
     end
     return @students
 end
@@ -67,26 +80,43 @@ def show_students
     print_footer
 end
 
-def save_students
-    file = File.open("students.csv.gitignore", "w")
-
-#iterating over the array of students
-    @students.each do |student|
+def save_students(filename = nil)
+    if filename.nil?
+      puts "Enter filename to save (default: students.csv.gitignore):"
+      filename = STDIN.gets.chomp
+      filename = "students.csv.gitignore" if filename.empty?
+    end
+  
+    File.open(filename, "w") do |file|
+      @students.each do |student|
         student_data = [student[:name], student[:cohort]]
         csv_line = student_data.join(",")
         file.puts csv_line
+      end
     end
-  file.close
+  
+    puts "Student list saved successfully to #{filename}."
 end
-
-def load_students(filename = "students.csv.gitignore")
-    file = File.open(filename, "r")
-    file.readlines.each do |line|
-      name, cohort = line.chomp.split(',')
-      @students << {name: name, cohort: cohort.to_sym}
+  
+def load_students(filename = nil)
+    if filename.nil?
+      puts "Enter filename to load (default: students.csv.gitignore):"
+      filename = STDIN.gets.chomp
+      filename = "students.csv.gitignore"
     end
-    file.close
-end
+  
+    if File.exist?(filename)
+      File.open(filename, "r") do |file|
+        file.readlines.each do |line|
+          name, cohort = line.chomp.split(",")
+          @students << { name: name, cohort: cohort.to_sym }
+        end
+      end
+    else
+      puts "Sorry, #{filename} doesn't exist."
+      exit
+    end
+end  
 
 def try_load_students
     filename = ARGV.first
