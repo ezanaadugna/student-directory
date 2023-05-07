@@ -1,9 +1,11 @@
+require 'csv'
+
 @students = []
 
 def print_menu
     puts "1. Input the students"
     puts "2. Show the students"
-    puts "3. Save the list to students.csv"
+    puts "3. Save the list to students.csv.gitignore"
     puts "4. Load the list from students.csv"
     puts "9. Exit" # 9 because we'll be adding more items  
 end
@@ -80,55 +82,37 @@ def show_students
     print_footer
 end
 
-def save_students(filename = nil)
-    if filename.nil?
-      puts "Enter filename to save (default: students.csv.gitignore):"
-      filename = STDIN.gets.chomp
-      filename = "students.csv.gitignore" if filename.empty?
-    end
+def save_students
+    puts "Enter filename to save (default: students.csv.gitignore):"
+    filename = STDIN.gets.chomp
+    filename = "students.csv.gitignore" if filename.empty?
   
-    File.open(filename, "w") do |file|
+    CSV.open(filename, "wb") do |csv|
       @students.each do |student|
-        student_data = [student[:name], student[:cohort]]
-        csv_line = student_data.join(",")
-        file.puts csv_line
+        csv << [student[:name], student[:cohort]]
       end
     end
   
     puts "Student list saved successfully to #{filename}."
+  end
+  
+def load_students(filename = "students.csv.gitignore")
+    CSV.foreach(filename) do |row|
+      name, cohort = row
+      add_student(name, cohort)
+    end
 end
   
-def load_students(filename = nil)
-    if filename.nil?
-      puts "Enter filename to load (default: students.csv.gitignore):"
-      filename = STDIN.gets.chomp
-      filename = "students.csv.gitignore"
-    end
-  
+def try_load_st9udents
+    filename = ARGV.first
+    return if filename.nil?
     if File.exist?(filename)
-      File.open(filename, "r") do |file|
-        file.readlines.each do |line|
-          name, cohort = line.chomp.split(",")
-          @students << { name: name, cohort: cohort.to_sym }
-        end
-      end
+      load_students(filename)
     else
       puts "Sorry, #{filename} doesn't exist."
       exit
     end
-end  
-
-def try_load_students
-    filename = ARGV.first
-    return if filename.nil?
-    if File.exist?(filename)
-        load_students(filename)
-        puts "Loaded #{@students.count} from #{filename}"
-    else
-        puts "Sorry, #{filename} doesn't exist."
-        exit
-    end
-end
+ end
 
 
 try_load_students
